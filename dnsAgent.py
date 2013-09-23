@@ -49,8 +49,8 @@ class DNSServer(SocketServer.BaseRequestHandler):
                 sk.send(query)
                 response = sk.recv(2048)
                 cache[body] = response[4:]
-            except Exception:
-                pass
+            except:
+                response = None
             finally:
                 sk.close()
             if response:return response[2:]
