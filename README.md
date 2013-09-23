@@ -6,12 +6,12 @@ dnsAgent is a DNS tcp forwarder which can prevent DNS spoofing, and increase the
 Usage
 -----
 
-*start daemon*
+* start daemon
 
     sudo python dnsAgent.py
 
 
-*edit /etc/resolv.conf*
+* edit /etc/resolv.conf
 
     nameserver 127.0.0.1
 
