@@ -1,20 +1,18 @@
 dnsAgent
 ========
 
-dnsAgent is a DNS tcp forwarder which can prevent DNS spoofing, and increase the speed by cache.
+dnsAgent is a tools which can forwarding DNS requests to TCP mode, and prevent DNS spoofing, and increase the speed by cache.
 
 Usage
 -----
 
-* start daemon
 
-    sudo python dnsAgent.py
+I. Start daemon
 
-
-* edit /etc/resolv.conf
-
-    nameserver 127.0.0.1
+    # python dnsAgent.py
 
 
+II. Edit /etc/resolv.conf
 
+    # echo "nameserver 127.0.0.1" > /etc/resolv.conf
 
