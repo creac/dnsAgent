@@ -1,7 +1,7 @@
 dnsAgent
 ========
 
-dnsAgent is a tools which can forwarding DNS requests to TCP mode, and prevent DNS spoofing, and increase the speed by cache.
+dnsAgent is a tools which can forwarding DNS requests to TCP mode, and prevent DNS spoofing, and use cache to improve the speed.
 
 Usage
 -----
