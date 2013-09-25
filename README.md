@@ -52,7 +52,7 @@ Speed
 
 Tips
 ----
-1. Support Python 2.6 and 2.7
+1. Requires Python 2.6 or 2.7
 
 2. Install gevent to improve performance
 
