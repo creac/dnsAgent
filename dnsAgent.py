@@ -40,12 +40,18 @@ class cache(object):
             cursor.execute('SELECT V FROM T_CACHE WHERE K = ?',(K,))
             v = cursor.fetchall()
             if v:return str(v[0][0])
+        except:
+            pass
         finally:
             cursor.close()
     def put(self,K,V):
         cursor = self.db.cursor()
-        cursor.execute('INSERT INTO T_CACHE (K,V) VALUES (?,?)',(K,V))
-        cursor.close()
+        try:
+            cursor.execute('INSERT INTO T_CACHE (K,V) VALUES (?,?)',(K,V))
+        except:
+            pass
+        finally:
+            cursor.close()
 
 class DNSServer(SocketServer.BaseRequestHandler):
     allow_reuse_address = True
