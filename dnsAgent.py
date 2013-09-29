@@ -48,8 +48,8 @@ class cache(object):
         cursor = self.db.cursor()
         try:
             cursor.execute('INSERT INTO T_CACHE (K,V) VALUES (?,?)',(K,V))
-        except:
-            pass
+        except IntegrityError:
+            cursor.execute('UPDATE T_CACHE SET V = ? WHERE K = ?',(V,K))
         finally:
             cursor.close()
 
