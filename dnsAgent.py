@@ -39,7 +39,7 @@ class cache(object):
         try:
             cursor.execute('SELECT V FROM T_CACHE WHERE K = ?',(K,))
             v = cursor.fetchall()
-            if v:return str(v[0][0])
+            if v:return v[0][0]
         except:
             pass
         finally:
