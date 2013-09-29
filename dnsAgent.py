@@ -40,7 +40,7 @@ class cache(object):
             cursor.execute('SELECT V FROM T_CACHE WHERE K = ?',(K,))
             v = cursor.fetchall()
             if v:return v[0][0]
-        except:
+        except IndexError:
             pass
         finally:
             cursor.close()
@@ -48,7 +48,7 @@ class cache(object):
         cursor = self.db.cursor()
         try:
             cursor.execute('INSERT INTO T_CACHE (K,V) VALUES (?,?)',(K,V))
-        except IntegrityError:
+        except sqlite3.IntegrityError:
             cursor.execute('UPDATE T_CACHE SET V = ? WHERE K = ?',(V,K))
         finally:
             cursor.close()
@@ -62,7 +62,7 @@ class DNSServer(SocketServer.BaseRequestHandler):
         data,sk = self.request
         if not data:return
         response = self._query(data)
-        sk.sendto(response,self.client_address)
+        if response:sk.sendto(response,self.client_address)
 
     def _query(self,data):
         ID,K = data[:2],data[2:]
@@ -76,13 +76,14 @@ class DNSServer(SocketServer.BaseRequestHandler):
                 sk.connect(s)
                 sk.send(query)
                 response = sk.recv(2048)
-            except:
+            except Exception as e:
+                logging.error('connect %s:%i error:%s'%(s[0],s[1],e))
                 response = None
             finally:
                 sk.close()
-            try:self.dns_cache.put(K,response[4:])
-            except:pass
-            if response:return response[2:]
+            if response:
+                self.dns_cache.put(K,response[4:])
+                return response[2:]
 
 if __name__ == '__main__':
     try:
