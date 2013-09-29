@@ -5,6 +5,7 @@ import logging
 import socket
 import struct
 import SocketServer
+import sqlite3
 try:
     import gevent.monkey
 except ImportError:
@@ -25,11 +26,31 @@ logging.basicConfig(
         format   = '%(asctime)s %(levelname)-8s %(message)s',
 )
 
-cache = {}
+class cache(object):
+    def __init__(self):
+        self.db = sqlite3.connect(":memory:",isolation_level=None)
+        self.db.text_factory = str
+        cursor = self.db.cursor()
+        cursor.execute('CREATE TABLE IF NOT EXISTS T_CACHE (K BLOB PRIMARY KEY,V BLOB)')
+        cursor.execute('PRAGMA journal_mode = off')
+        cursor.close()
+    def get(self,K):
+        cursor = self.db.cursor()
+        try:
+            cursor.execute('SELECT V FROM T_CACHE WHERE K = ?',(K,))
+            v = cursor.fetchall()
+            if v:return str(v[0][0])
+        finally:
+            cursor.close()
+    def put(self,K,V):
+        cursor = self.db.cursor()
+        cursor.execute('INSERT INTO T_CACHE (K,V) VALUES (?,?)',(K,V))
+        cursor.close()
 
 class DNSServer(SocketServer.BaseRequestHandler):
     allow_reuse_address = True
     daemon_threads = True
+    dns_cache = cache()
 
     def handle(self):
         data,sk = self.request
@@ -38,8 +59,9 @@ class DNSServer(SocketServer.BaseRequestHandler):
         sk.sendto(response,self.client_address)
 
     def _query(self,data):
-        tid,body = data[:2],data[2:]
-        if body in cache:return ''.join([tid,cache[body]])
+        ID,K = data[:2],data[2:]
+        V = self.dns_cache.get(K)
+        if V:return ''.join([ID,V])
         query = ''.join([struct.pack('>H',len(data)),data])
         for s in dns:
             sk = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
@@ -48,11 +70,12 @@ class DNSServer(SocketServer.BaseRequestHandler):
                 sk.connect(s)
                 sk.send(query)
                 response = sk.recv(2048)
-                cache[body] = response[4:]
             except:
                 response = None
             finally:
                 sk.close()
+            try:self.dns_cache.put(K,response[4:])
+            except:pass
             if response:return response[2:]
 
 if __name__ == '__main__':
