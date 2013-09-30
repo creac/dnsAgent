@@ -27,8 +27,8 @@ logging.basicConfig(
 )
 
 class cache(object):
-    def __init__(self):
-        self.db = sqlite3.connect(":memory:",isolation_level=None)
+    def __init__(self,filename=':memory:'):
+        self.db = sqlite3.connect(filename,isolation_level=None)
         self.db.text_factory = str
         cursor = self.db.cursor()
         cursor.execute('CREATE TABLE IF NOT EXISTS T_CACHE (K BLOB PRIMARY KEY,V BLOB)')
@@ -38,8 +38,7 @@ class cache(object):
         cursor = self.db.cursor()
         try:
             cursor.execute('SELECT V FROM T_CACHE WHERE K = ?',(K,))
-            v = cursor.fetchall()
-            if v:return v[0][0]
+            return cursor.fetchall()[0][0]
         except IndexError:
             pass
         finally:
